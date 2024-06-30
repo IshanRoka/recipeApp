@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Book App</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        header {
+            background: #0c2461;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        header h1 {
+            font-size: 36px;
+        }
+        .container {
+            margin: 0 auto;
+            max-width: 1200px;
+            padding: 20px;
+        }
+        .recipe-list {
+            list-style: none;
+        }
+        .recipe-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .recipe-item img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+        .recipe-item h2 {
+            font-size: 20px;
+            padding: 10px;
+            min-width: 200px;
+        }
+        .recipe-item p {
+            padding: 10px;
+            color: #777;
+        }
+        .recipe-item a {
+            background: blue;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            text-transform: uppercase;
+            font-size: 14px;
+            min-width: 140px;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            .recipe-item {
+                flex-direction: column;
+            }
+            .recipe-item img {
+                width: 100%;
+                height: auto;
+                margin-bottom: 10px;
+            }
+            .recipe-item h2 {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            .recipe-item p {
+                margin-bottom: 10px;
+                font-size: 14px;
+            }
+            .recipe-item a {
+                width: 50%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Recipe Book App</h1>
+    </header>
+    <div class="container">
+        <ul class="recipe-list" id="recipe-list">
+        </ul>
+    </div>
+    <script>
+        const API_KEY = "a104c94a05874938b228d4e6222a0c60";
+
+        async function getRecipes() {
+            try {
+                const response = await fetch(`https://api.spoonacular.com/recipes/random?number=10&apiKey=${API_KEY}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                return data.recipes;
+            } catch (error) {
+                console.error("Failed to fetch recipes:", error);
+                throw error; 
+            }
+        }
+
+        function displayRecipes(recipes) {
+            const recipeList = document.getElementById('recipe-list');
+            recipes.forEach(recipe => {
+                const recipeItem = document.createElement('li');
+                recipeItem.classList.add('recipe-item');
+                recipeItem.innerHTML = `
+                    <img src="${recipe.image}" alt="${recipe.title}">
+                    <h2>${recipe.title}</h2>
+                    <p>
+                        <strong>Ingredients:</strong> ${recipe.extendedIngredients.map(ingredient => ingredient.name).join(', ')}
+                    </p>
+                    <a href="${recipe.sourceUrl}" target="_blank">View Recipe</a>
+                `;
+                recipeList.appendChild(recipeItem);
+            });
+        }
+
+        async function init() {
+            try {
+                const recipes = await getRecipes();
+                console.log(recipes);
+                displayRecipes(recipes);
+            } catch (error) {
+                console.error("Initialization failed:", error);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
